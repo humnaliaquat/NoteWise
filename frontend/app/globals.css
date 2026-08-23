@@ -51,6 +51,7 @@
   --bg-soft: #f8f9fb;
   /* Hover states, skeleton loaders */
   --bg-softer: #f1f2f5;
+  --bg-softer-highlight: #dde1e9;
 
   /* Default borders */
   --border: #e6e8ec;
