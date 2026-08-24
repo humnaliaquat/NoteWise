@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Sparkles, Plus, FileText, Send, Check } from "lucide-react";
 export default function HeroSection() {
   return (
-    <div className="flex gap-5 mt-10 px-6 py-4 md:px-12 lg:px-30 h-screen">
+    <div className="flex gap-5 mt-30  px-6 py-4 md:px-12 lg:px-30  mb-10">
       <div className="grid grid-cols-2">
         {/* left side */}
         <div className="flex flex-col p-4 gap-4 justify-start">
