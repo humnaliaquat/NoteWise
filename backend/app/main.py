@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import notes
 from app.routes.documents import router as documents_router
+from app.routes.search import router as search_router
+from app.routes.chat import router as chat_router
 app = FastAPI()
 
 app.add_middleware(
@@ -18,6 +20,8 @@ app.include_router(
     tags=["Notes"]
 )
 app.include_router(documents_router)
+app.include_router(search_router)
+app.include_router(chat_router)
 
 
 @app.get("/")
