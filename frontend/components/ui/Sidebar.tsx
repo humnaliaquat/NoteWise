@@ -59,7 +59,7 @@ export default function Sidebar() {
               <Link
                 href={item.href}
                 key={item.id}
-                className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-1.5 ${
+                className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm ${
                   isActive
                     ? "bg-(--accent-light) text-(--accent)"
                     : "text-(--text-secondary) hover:bg-gray-50"
@@ -79,7 +79,7 @@ export default function Sidebar() {
         {/* Settings */}
         <Link
           href="/dashboard/settings"
-          className={`mb-3 flex items-center gap-3 rounded-lg px-3 py-1.5 ${
+          className={`mb-3 flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm ${
             pathname === "/dashboard/settings"
               ? "bg-(--accent-light) text-(--accent)"
               : "text-(--text-secondary) hover:bg-gray-50"
