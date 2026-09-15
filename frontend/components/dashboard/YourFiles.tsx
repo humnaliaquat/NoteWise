@@ -1,6 +1,9 @@
 "use client";
 
 import { File, FileText, Loader2, MoreVertical, Upload } from "lucide-react";
+import { useEffect, useState } from "react";
+import Dropdown from "../ui/Dropdown";
+import { getDocuments } from "@/services/documentService";
 
 interface YourFilesProps {
   selectedFile: File | null;
@@ -16,14 +19,39 @@ interface Document {
   status: "Ready" | "Processing";
 }
 
+interface APIDocument {
+  _id: string;
+  filename: string;
+  file_type: string;
+  file_size: number;
+  file_size_mb: number;
+  pages: number | null;
+  text_length: number;
+  status: string;
+  created_at: string;
+}
 // Temporary data — replace this with API data later
-const documents: Document[] = [];
 
 export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
+  const [documents, setDocuments] = useState<APIDocument[]>([]);
   const totalDocuments = documents.length + (selectedFile ? 1 : 0);
 
   const hasDocuments = totalDocuments > 0;
+  useEffect(() => {
+    async function loadDocuments() {
+      try {
+        const data = await getDocuments();
 
+        console.log("API documents:", data);
+
+        setDocuments(data);
+      } catch (error) {
+        console.error("Failed to fetch documents:", error);
+      }
+    }
+
+    loadDocuments();
+  }, []);
   return (
     <section className="flex flex-col gap-4">
       {/* Header */}
@@ -64,12 +92,12 @@ export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
           {/* Existing documents */}
           {documents.map((document) => (
             <DocumentCard
-              key={document.id}
-              name={document.name}
-              pages={document.pages}
-              size={document.size}
-              time={document.time}
-              status={document.status}
+              key={document._id}
+              name={document.filename}
+              pages={document.pages ?? undefined}
+              size={document.file_size_mb ?? 0}
+              time={new Date(document.created_at).toLocaleString()}
+              status={document.status === "uploaded" ? "Ready" : "Processing"}
             />
           ))}
         </div>
@@ -92,9 +120,16 @@ interface DocumentCardProps {
 
 function DocumentCard({ name, pages, size, time, status }: DocumentCardProps) {
   const isProcessing = status === "Processing";
-
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const toggleDropdown = () => {
+    if (isDropdownOpen == false) {
+      setDropdownOpen(true);
+    } else {
+      setDropdownOpen(false);
+    }
+  };
   return (
-    <div className="group rounded-xl border border-(--border) bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="relative group rounded-xl border border-(--border) bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
       {/* Top section */}
       <div className="flex items-start justify-between gap-3">
         {/* File icon */}
@@ -104,9 +139,10 @@ function DocumentCard({ name, pages, size, time, status }: DocumentCardProps) {
 
         {/* More button */}
         <button
+          onClick={toggleDropdown}
           type="button"
           aria-label={`More options for ${name}`}
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-(--text-tertiary) opacity-0 transition-all hover:bg-gray-100 hover:text-(--text-primary) group-hover:opacity-100"
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-(--text-tertiary) transition-all hover:bg-gray-100 hover:text-(--text-primary) -rotate-90"
         >
           <MoreVertical className="h-4 w-4" />
         </button>
@@ -120,7 +156,8 @@ function DocumentCard({ name, pages, size, time, status }: DocumentCardProps) {
 
         <p className="mt-1 truncate text-xs text-(--text-tertiary)">
           {pages !== undefined && `${pages} pages · `}
-          {size.toFixed(2)} MB · {time}
+          {size > 0 && `${size.toFixed(2)} MB · `}
+          {time}
         </p>
       </div>
 
@@ -138,6 +175,11 @@ function DocumentCard({ name, pages, size, time, status }: DocumentCardProps) {
           </div>
         )}
       </div>
+      {isDropdownOpen && (
+        <div className="absolute right-5 top-12">
+          <Dropdown />
+        </div>
+      )}
     </div>
   );
 }

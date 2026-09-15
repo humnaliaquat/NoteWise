@@ -34,7 +34,7 @@ export default function Dashboard() {
     }
   };
   return (
-    <div className="flex flex-col gap-6 px-6 py-4 md:px-10 lg:px-18 xl:px-25 p-6">
+    <div className="flex flex-col gap-6 px-6 pt-12 md:px-10 lg:px-18 xl:px-36 p-6 ">
       {/* Header */}
       <div>
         <h1 className="text-[25px] font-bold">Good afternoon</h1>

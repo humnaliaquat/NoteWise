@@ -10,6 +10,9 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+interface SidebarProps {
+  onSettingsClick: () => void;
+}
 const navItems = [
   {
     id: 1,
@@ -31,11 +34,11 @@ const navItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onSettingsClick }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-(--border) bg-white">
+    <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-(--border) bg-white">
       {/* Top */}
       <div>
         {/* Logo */}
@@ -77,8 +80,8 @@ export default function Sidebar() {
       {/* Bottom */}
       <footer className="mt-auto border-t border-(--border) p-3">
         {/* Settings */}
-        <Link
-          href="/dashboard/settings"
+        <button
+          onClick={onSettingsClick}
           className={`mb-3 flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm ${
             pathname === "/dashboard/settings"
               ? "bg-(--accent-light) text-(--accent)"
@@ -88,7 +91,7 @@ export default function Sidebar() {
           <Settings className="h-4 w-4" />
 
           <span className="font-medium">Settings</span>
-        </Link>
+        </button>
 
         {/* User */}
         <div className="flex items-center gap-3 px-2 py-2">

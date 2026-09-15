@@ -1,28 +1,23 @@
+"use client";
+
+import { useState } from "react";
 import Sidebar from "@/components/ui/Sidebar";
-import type { Metadata } from "next";
-export const metadata: Metadata = {
-  title: {
-    default: "Dashboard | DocWise",
-    template: "%s | DocWise",
-  },
-  description: "Manage your documents and chat with your notes using DocWise.",
-};
+import SettingsCard from "@/components/ui/SettingsCard";
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="min-h-screen bg-background">
+      <Sidebar onSettingsClick={() => setSettingsOpen(true)} />
 
-      {/* Main section */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* <DashboardHeader /> */}
+      <main className="ml-64 min-h-screen">{children}</main>
 
-        <main className="flex-1 ">{children}</main>
-      </div>
+      {settingsOpen && <SettingsCard onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }

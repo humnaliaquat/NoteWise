@@ -29,13 +29,28 @@ async def upload_document(file: UploadFile = File(...)):
 
     filename = file.filename.lower()
 
+    file_content = await file.read()
+    file_size = len(file_content)
+    file_size_mb = file_size/(1024*1024)
+
+    await file.seek(0)
+
     if filename.endswith(".pdf"):
         text = await extract_text_from_pdf(file)
         file_type = "pdf"
+        await file.seek(0)
+        import pymupdf
+        pdf_bytes = await file.read()
+        pdf = pymupdf.open(
+            stream=pdf_bytes, filetype="pdf"
+        )
+        pages = len(pdf)
+        pdf.close()
 
     elif filename.endswith(".txt"):
         text = await extract_text_from_txt(file)
         file_type = "txt"
+        pages = None
 
     else:
         raise HTTPException(
@@ -56,6 +71,9 @@ async def upload_document(file: UploadFile = File(...)):
     document = {
         "filename": file.filename,
         "file_type": file_type,
+        "file_size": file_size,
+        "file_size_mb": round(file_size_mb, 2),
+        "pages": pages,
         "text_length": len(text),
         "status": "uploaded",
 
@@ -69,6 +87,9 @@ async def upload_document(file: UploadFile = File(...)):
         "message": "Document uploaded successfully",
         "document_id": str(result.inserted_id),
         "filename": file.filename,
+        "file_size": file_size,
+        "file_size_mb": round(file_size_mb, 2),
+        "pages": pages,
         "file_type": file_type,
         "number_of_chunks": len(chunks),
         "first_chunk": chunks[0] if chunks else None,
@@ -81,9 +102,8 @@ async def upload_document(file: UploadFile = File(...)):
 
 @router.get("/")
 def get_docs():
-    documents = list(
-        documents_collection.find()
-    )
+    documents = list(documents_collection.find())
+
     for document in documents:
         document["_id"] = str(document["_id"])
 
