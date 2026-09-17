@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from bson import ObjectId
+from pydantic import BaseModel
 from app.services.chunking_service import create_chunks
 from app.services.embeddings import create_embedding
 from app.services.pinecone_service import (
@@ -157,4 +158,43 @@ def delete_doc(document_id: str):
     return {
         "message": "Document deleted successfully",
         "document_id": document_id
+    }
+
+
+class UpdateTitleRequest(BaseModel):
+    title: str
+
+
+@router.patch("/{document_id}")
+def updateFileTitle(document_id: str, data: UpdateTitleRequest):
+    if not ObjectId.is_valid(document_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid document id"
+        )
+    # Find document
+    document = documents_collection.find_one(
+        {"_id": ObjectId(document_id)}
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
+    title = data.title.strip()
+
+    if not title:
+        raise HTTPException(
+            status_code=400,
+            details="Title cannot be empty"
+        )
+    documents_collection.update_one(
+        {"_id": ObjectId(document_id)},
+        {"$set": {"filename": title}}
+    )
+    return {
+        "message": "Document title updated successfully",
+        "document_id": document_id,
+        "filename": title
     }

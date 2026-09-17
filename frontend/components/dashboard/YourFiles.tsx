@@ -3,20 +3,11 @@
 import { File, FileText, Loader2, MoreVertical, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import Dropdown from "../ui/Dropdown";
-import { getDocuments } from "@/services/documentService";
+import { getDocuments, deleteDocument } from "@/services/documentService";
 
 interface YourFilesProps {
   selectedFile: File | null;
   uploading: boolean;
-}
-
-interface Document {
-  id: number;
-  name: string;
-  pages: number;
-  size: number;
-  time: string;
-  status: "Ready" | "Processing";
 }
 
 interface APIDocument {
@@ -30,7 +21,6 @@ interface APIDocument {
   status: string;
   created_at: string;
 }
-// Temporary data — replace this with API data later
 
 export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
   const [documents, setDocuments] = useState<APIDocument[]>([]);
@@ -52,6 +42,18 @@ export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
 
     loadDocuments();
   }, []);
+  const handleDelete = async (documentId: string) => {
+    try {
+      await deleteDocument(documentId);
+
+      setDocuments((prevDocuments) =>
+        prevDocuments.filter((document) => document._id !== documentId),
+      );
+      console.log("Document deleted successfully");
+    } catch (error: any) {
+      console.error("Failed to delete document:", error);
+    }
+  };
   return (
     <section className="flex flex-col gap-4">
       {/* Header */}
@@ -93,11 +95,13 @@ export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
           {documents.map((document) => (
             <DocumentCard
               key={document._id}
+              id={document._id}
               name={document.filename}
               pages={document.pages ?? undefined}
               size={document.file_size_mb ?? 0}
               time={new Date(document.created_at).toLocaleString()}
               status={document.status === "uploaded" ? "Ready" : "Processing"}
+              onDelete={handleDelete}
             />
           ))}
         </div>
@@ -111,14 +115,23 @@ export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
 /* -------------------------------- */
 
 interface DocumentCardProps {
+  id?: string;
   name: string;
   pages?: number;
   size: number;
   time: string;
   status: "Ready" | "Processing";
+  onDelete?: (id: string) => void;
 }
-
-function DocumentCard({ name, pages, size, time, status }: DocumentCardProps) {
+function DocumentCard({
+  id,
+  name,
+  pages,
+  size,
+  time,
+  status,
+  onDelete,
+}: DocumentCardProps) {
   const isProcessing = status === "Processing";
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const toggleDropdown = () => {
@@ -128,6 +141,7 @@ function DocumentCard({ name, pages, size, time, status }: DocumentCardProps) {
       setDropdownOpen(false);
     }
   };
+
   return (
     <div className="relative group rounded-xl border border-(--border) bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
       {/* Top section */}
@@ -176,8 +190,14 @@ function DocumentCard({ name, pages, size, time, status }: DocumentCardProps) {
         )}
       </div>
       {isDropdownOpen && (
-        <div className="absolute right-5 top-12">
-          <Dropdown />
+        <div className="absolute right-5 top-12 z-50">
+          <Dropdown
+            onDelete={() => {
+              if (id) {
+                onDelete?.(id);
+              }
+            }}
+          />
         </div>
       )}
     </div>

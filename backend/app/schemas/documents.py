@@ -6,3 +6,4 @@ class DocumentResponse(BaseModel):
     filename: str
     file_type: str
     status: str
+    pages: int
