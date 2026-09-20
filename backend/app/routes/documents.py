@@ -60,7 +60,7 @@ async def upload_document(file: UploadFile = File(...)):
         )
     chunks = create_chunks(text)
     embeddings = [
-        create_embedding(chunk)
+        create_embedding(chunk["text"])
         for chunk in chunks
     ]
     print("Number of chunks:", len(chunks))

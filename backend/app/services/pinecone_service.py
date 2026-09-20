@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from pinecone import Pinecone
+
 load_dotenv()
 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -16,25 +17,29 @@ def store_chunks(
     document_id: str
 ):
     vectors = []
-    for i, (chunk, embedding) in enumerate(
-        zip(chunks, embeddings)
-    ):
+
+    for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+
         vectors.append({
             "id": f"{document_id}-chunk-{i}",
-            "values": embeddings[i],
+            "values": embedding,
             "metadata": {
                 "document_id": document_id,
                 "chunk_index": i,
-                "text": chunk
+                "page": chunk["page"],
+                "text": chunk["text"]
             }
         })
 
     batch_size = 100
+
     for start in range(0, len(vectors), batch_size):
-        batch = vectors[start:start+batch_size]
+        batch = vectors[start:start + batch_size]
+
         index.upsert(
             vectors=batch
         )
+
     print("All vectors uploaded successfully!")
 
 

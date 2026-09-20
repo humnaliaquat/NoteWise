@@ -1,3 +1,4 @@
+import AfterChatUI from "@/components/chat/AfterChatUI";
 import BeforeChatUI from "@/components/chat/BeforeChatUI";
 import BottomMessageTypingBox from "@/components/chat/BottomMessageTypingBox";
 import ChatPageNav from "@/components/ui/ChatPageNav";
@@ -9,7 +10,8 @@ export default function Page() {
       <ChatPageNav />
 
       <main className="flex-1 overflow-y-auto">
-        <BeforeChatUI />
+        {/* <BeforeChatUI /> */}
+        <AfterChatUI />
       </main>
 
       <BottomMessageTypingBox />

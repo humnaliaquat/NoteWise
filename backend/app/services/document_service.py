@@ -90,9 +90,10 @@ async def extract_text_from_pdf(file):
         cleaned_text = clean_pdf_text(raw_text)
 
         if cleaned_text:
-            pages.append(
-                f"Page {page_number + 1}\n{cleaned_text}"
-            )
+            pages.append({
+                "text": cleaned_text,
+                "page": page_number
+            })
 
     pdf.close()
 

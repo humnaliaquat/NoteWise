@@ -1,0 +1,26 @@
+from datetime import datetime, timedelta, timezone
+
+from jose import jwt
+import os
+
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "60")
+)
+
+
+def create_access_token(user_id: str) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+
+    payload = {
+        "sub": user_id,
+        "exp": expire
+    }
+
+    token = jwt.encode(
+        payload, SECRET_KEY, algorithm=ALGORITHM
+    )
+    return token

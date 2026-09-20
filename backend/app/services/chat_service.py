@@ -4,7 +4,9 @@ from app.services.llm_service import generate_answer
 
 
 def answer_question(question: str):
+
     query_embedding = create_embedding(question)
+
     results = search_vectors(
         query_embedding,
         top_k=5,
@@ -12,17 +14,32 @@ def answer_question(question: str):
     )
 
     context_parts = []
+
     for result in results:
         metadata = result.get("metadata", {})
         text = metadata.get("text")
+
         if text:
             context_parts.append(text)
 
-        context = "\n\n".join(context_parts)
-        answer = generate_answer(question, context)
+    context = "\n\n".join(context_parts)
 
-        return {
-            "question": question,
-            "anwser": answer,
-            "sources": results
-        }
+    answer = generate_answer(question, context)
+
+    sources = []
+
+    for result in results:
+        metadata = result.get("metadata", {})
+
+        sources.append({
+            "document_id": metadata.get("document_id"),
+            "page": metadata.get("page"),
+            "chunk_index": metadata.get("chunk_index"),
+            "score": round(result.get("score", 0), 3)
+        })
+
+    return {
+        "question": question,
+        "answer": answer,
+        "sources": sources
+    }
