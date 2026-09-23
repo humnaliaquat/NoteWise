@@ -3,14 +3,15 @@ from app.services.pinecone_service import search_vectors
 from app.services.llm_service import generate_answer
 
 
-def answer_question(question: str):
+def answer_question(question: str, document_id: str):
 
     query_embedding = create_embedding(question)
 
     results = search_vectors(
         query_embedding,
         top_k=5,
-        min_score=0.40
+        min_score=0.40,
+        document_id=document_id
     )
 
     context_parts = []

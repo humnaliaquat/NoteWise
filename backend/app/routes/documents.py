@@ -37,16 +37,15 @@ async def upload_document(file: UploadFile = File(...)):
     await file.seek(0)
 
     if filename.endswith(".pdf"):
-        text = await extract_text_from_pdf(file)
+        pages_data = await extract_text_from_pdf(file)
+
         file_type = "pdf"
-        await file.seek(0)
-        import pymupdf
-        pdf_bytes = await file.read()
-        pdf = pymupdf.open(
-            stream=pdf_bytes, filetype="pdf"
+        pages = len(pages_data)
+
+        text = "\n\n".join(
+            page["text"]
+            for page in pages_data
         )
-        pages = len(pdf)
-        pdf.close()
 
     elif filename.endswith(".txt"):
         text = await extract_text_from_txt(file)
@@ -58,7 +57,15 @@ async def upload_document(file: UploadFile = File(...)):
             status_code=400,
             detail="Only PDF and TXT files are supported"
         )
-    chunks = create_chunks(text)
+    if file_type == "pdf":
+        chunks = create_chunks(pages_data)
+    else:
+        chunks = create_chunks([
+            {
+                "text": text,
+                "page": None
+            }
+        ])
     embeddings = [
         create_embedding(chunk["text"])
         for chunk in chunks
@@ -187,7 +194,7 @@ def updateFileTitle(document_id: str, data: UpdateTitleRequest):
     if not title:
         raise HTTPException(
             status_code=400,
-            details="Title cannot be empty"
+            detail="Title cannot be empty"
         )
     documents_collection.update_one(
         {"_id": ObjectId(document_id)},

@@ -44,28 +44,39 @@ def store_chunks(
 
 
 def search_vectors(
-    query_vectors: list,
-    top_k: int = 5,
-    min_score: float = 0.40
+    query_embedding,
+    top_k=5,
+    min_score=0.40,
+    document_id=None
 ):
+
+    search_filter = None
+
+    if document_id:
+        search_filter = {
+            "document_id": document_id
+        }
+
     results = index.query(
-        vector=query_vectors,
+        vector=query_embedding,
         top_k=top_k,
-        include_metadata=True
+        include_metadata=True,
+        filter=search_filter
     )
 
-    matches = []
+    filtered_results = [
+        match
+        for match in results.matches
+        if match.score >= min_score
+    ]
 
-    for match in results.matches:
-
-        if match.score >= min_score:
-            matches.append({
-                "id": match.id,
-                "score": match.score,
-                "metadata": match.metadata
-            })
-
-    return matches
+    return [
+        {
+            "score": match.score,
+            "metadata": match.metadata
+        }
+        for match in filtered_results
+    ]
 
 
 def delete_document_vectors(document_id: str):
