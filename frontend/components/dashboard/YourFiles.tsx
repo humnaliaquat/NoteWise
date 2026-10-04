@@ -4,7 +4,7 @@ import { File, FileText, Loader2, MoreVertical, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import Dropdown from "../ui/Dropdown";
 import { getDocuments, deleteDocument } from "@/services/documentService";
-
+import { useRouter } from "next/navigation";
 interface YourFilesProps {
   selectedFile: File | null;
   uploading: boolean;
@@ -23,9 +23,12 @@ interface APIDocument {
 }
 
 export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
+  const router = useRouter();
   const [documents, setDocuments] = useState<APIDocument[]>([]);
   const totalDocuments = documents.length + (selectedFile ? 1 : 0);
-
+  const handleOpenChat = (documentId: string) => {
+    router.push(`/dashboard/chat/${documentId}`);
+  };
   const hasDocuments = totalDocuments > 0;
   useEffect(() => {
     async function loadDocuments() {
@@ -102,6 +105,7 @@ export default function YourFiles({ selectedFile, uploading }: YourFilesProps) {
               time={new Date(document.created_at).toLocaleString()}
               status={document.status === "uploaded" ? "Ready" : "Processing"}
               onDelete={handleDelete}
+              onOpenChat={handleOpenChat}
             />
           ))}
         </div>
@@ -122,6 +126,7 @@ interface DocumentCardProps {
   time: string;
   status: "Ready" | "Processing";
   onDelete?: (id: string) => void;
+  onOpenChat?: (id: string) => void;
 }
 function DocumentCard({
   id,
@@ -131,6 +136,7 @@ function DocumentCard({
   time,
   status,
   onDelete,
+  onOpenChat,
 }: DocumentCardProps) {
   const isProcessing = status === "Processing";
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -195,6 +201,11 @@ function DocumentCard({
             onDelete={() => {
               if (id) {
                 onDelete?.(id);
+              }
+            }}
+            openChat={() => {
+              if (id) {
+                onOpenChat?.(id);
               }
             }}
           />

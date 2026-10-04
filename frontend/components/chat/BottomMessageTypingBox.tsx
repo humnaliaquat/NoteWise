@@ -1,8 +1,21 @@
 import React from "react";
 import { FilePlus, Send } from "lucide-react";
-import { jetbrainsMono } from "@/app/layout";
+import { JetBrains_Mono } from "next/font/google";
 
-export default function BottomMessageTypingBox() {
+interface BottomMessageTypingBoxProps {
+  onSend: (message: string) => void;
+  loading: boolean;
+}
+export const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+});
+export default function BottomMessageTypingBox({
+  onSend,
+  loading,
+}: BottomMessageTypingBoxProps) {
   return (
     <div className="w-full border-t border-(--border) ">
       <div className="mx-auto max-w-4xl px-6 py-4">
@@ -22,6 +35,16 @@ export default function BottomMessageTypingBox() {
 
           <button
             type="button"
+            onClick={() => {
+              const input = document.querySelector(
+                'input[name="message"]',
+              ) as HTMLInputElement;
+              if (input) {
+                onSend(input.value);
+                input.value = "";
+              }
+            }}
+            disabled={loading}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-(--accent)"
           >
             <Send className="h-4 w-4 text-white" />

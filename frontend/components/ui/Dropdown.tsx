@@ -2,8 +2,9 @@ import React from "react";
 import { FilePen, MessageCircle, Trash } from "lucide-react";
 interface DropdownProps {
   onDelete: () => void;
+  openChat: () => void;
 }
-export default function Dropdown({ onDelete }: DropdownProps) {
+export default function Dropdown({ onDelete, openChat }: DropdownProps) {
   const data = [
     { id: 1, name: "Rename", icon: FilePen },
     { id: 2, name: "Open chat", icon: MessageCircle },
@@ -13,7 +14,13 @@ export default function Dropdown({ onDelete }: DropdownProps) {
     <div className="border border-(--border) shadow rounded-lg bg-white px-1 py-1.5 flex flex-col  z-50 w-37 text-sm font-medium ">
       {data.map((item) => (
         <button
-          onClick={item.name == "Delete" ? onDelete : undefined}
+          onClick={
+            item.name == "Delete"
+              ? onDelete
+              : item.name == "Open chat"
+                ? openChat
+                : undefined
+          }
           key={item.id}
           className={`${item.name == "Delete" ? "text-(--danger)" : "text-(--text)"} flex gap-2 px-3 py-1.5 cursor-pointer items-center hover:bg-(--accent-light) rounded-lg`}
         >
